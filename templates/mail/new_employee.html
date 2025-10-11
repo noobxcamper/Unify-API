@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        body,
+        html {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .three-sections {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .middle-container {
+            background-color: #f5f5f5;
+            padding: 40px 20px;
+        }
+
+        .top-container,
+        .bottom-container {
+            background-color: #3687ff;
+            color: whitesmoke;
+            padding: 30px;
+        }
+
+        .top-container {
+            border-radius: 15px 15px 0px 0px;
+        }
+
+        .bottom-container {
+            border-radius: 0px 0px 15px 15px;
+        }
+
+        .text-container {
+            background-color: #fff;
+            padding: 5px 10px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        .center-container>p {
+            max-width: 50%;
+            text-wrap-mode: nowrap;
+        }
+
+        p {
+            padding: 0;
+            margin: 0;
+        }
+
+        a {
+            color: whitesmoke;
+        }
+
+        .font-32 {
+            font-size: 32px;
+        }
+
+        .font-22 {
+            font-size: 22px;
+        }
+
+        .font-14 {
+            font-size: 14px;
+        }
+
+        .font-18 {
+            font-size: 18px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-sm {
+            margin-top: 8px;
+        }
+
+        .mb-sm {
+            margin-bottom: 8px;
+        }
+
+        .mt-md {
+            margin-top: 16px;
+        }
+
+        .mt-lg {
+            margin-top: 32px;
+        }
+    </style>
+
+    <div class="container">
+        <div class="three-sections">
+        <div class="top-container">
+            <p class="font-32">Welcome to Experior, {{ first_name }}!</p>
+            <p class="font-18">We are excited to have you here 😃</p>
+        </div>
+
+        <div class="middle-container">
+            <p class="font-22 text-center">🔐 These are your temporary login credentials</p>
+            <p class="font-18 text-center mt-sm">You will use these to login to your laptop on your first day!</p>
+
+            <div class="text-container mt-lg">
+                <h3>{{ email }}</h3>
+            </div>
+
+            <div class="text-container mt-md">
+                <h3>{{ password }}</h3>
+            </div>
+
+            <p class="font-18 text-center mt-lg">Your start date</p>
+            <p class="font-18 text-center mt-sm">{{ start_date }}</p>
+        </div>
+
+        <div class="bottom-container">
+            <p class="font-18 mb-sm">If you have any questions, please send an email to</p>
+            <a class="font-18" href="mailto:helpdesk@experiorheadoffice.ca">helpdesk@experiorheadoffice.ca</a>
+        </div>
+        </div>
+    </div>
+</body>
+
+</html>

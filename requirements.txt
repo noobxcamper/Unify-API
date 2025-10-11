@@ -1,0 +1,17 @@
+requests
+azure-core
+asgiref
+django
+django-cors-headers
+djangorestframework
+djangorestframework-api-key
+django-microsoft-auth
+PyJWT
+pytz
+sqlparse
+psycopg2-binary
+python-dotenv
+gunicorn
+azure-storage-blob
+psycopg
+msal
