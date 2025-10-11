@@ -1,0 +1,13 @@
+.env
+.env*
+.venv
+.idea
+.gitignore
+.dockerignore
+.git
+run_server.ps1
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/

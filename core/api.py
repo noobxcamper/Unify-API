@@ -1,5 +1,5 @@
 import requests
-from backend import settings
+from service import settings
 
 def send_teams_message(token, message):
     url = "https://graph.microsoft.com/v1.0/teams/" + settings.TEAM_ID + "/channels/" + settings.CHANNEL_ID + "/messages"

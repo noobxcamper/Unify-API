@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.utils import timezone
 from msal import ConfidentialClientApplication
-from backend.settings import AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID
+from service.settings import AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID
 import jwt
 
 def generate_obo_token(user_access_token):

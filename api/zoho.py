@@ -1,6 +1,6 @@
 from requests import post
 from core.models import ZohoToken
-from backend.settings import ZOHO_SECRET_KEY, ZOHO_CLIENT_ID
+from service.settings import ZOHO_SECRET_KEY, ZOHO_CLIENT_ID
 import json, time, logging
 
 def refresh_token(token):

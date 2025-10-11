@@ -1,7 +1,7 @@
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from jwt.algorithms import RSAAlgorithm
-from backend.settings import AZURE_TENANT_ID, AZURE_CLIENT_ID
+from service.settings import AZURE_TENANT_ID, AZURE_CLIENT_ID
 import jwt
 import requests
 
