@@ -3,6 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+WSGI_APPLICATION = 'service.wsgi.application'
 # Load env file
 load_dotenv('.env.local')
 
@@ -72,6 +73,9 @@ ROOT_URLCONF = 'service.urls'
 STATIC_URL = '/static/'
 STATIC_ROOT = path.join(BASE_DIR, 'static')
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -89,8 +93,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'service.wsgi.application'
 
 DATABASES = {
     'default': {
