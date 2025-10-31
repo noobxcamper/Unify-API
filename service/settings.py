@@ -1,4 +1,4 @@
-from os import path, getenv, environ
+from os import path, environ
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -74,7 +74,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = path.join(BASE_DIR, 'static')
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = path.join(BASE_DIR, "media")
 
 TEMPLATES = [
     {
