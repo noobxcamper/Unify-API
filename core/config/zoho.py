@@ -4,6 +4,10 @@ from service.settings import ZOHO_SECRET_KEY, ZOHO_CLIENT_ID
 import json, time, logging
 
 def refresh_token(token):
+    """
+    Gets a valid access token from Zoho's API.
+    """
+
     api_endpoint = 'https://accounts.zoho.com/oauth/v2/token'
     params = {
         'refresh_token': token,

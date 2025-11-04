@@ -1,6 +1,5 @@
-from os import path, getenv, environ
+from os import path, environ
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 # Load env file
@@ -18,11 +17,18 @@ ZOHO_CLIENT_ID = environ['ZOHO_CLIENT_ID']
 
 DEBUG = (environ.get('DJANGO_DEBUG') == "True")
 
+### Security Settings ###
+SESSION_COOKIE_SECURE = (environ.get('DJANGO_SESSION_COOKIE_SECURE') == "True")
+CSRF_COOKIE_SECURE = (environ.get('DJANGO_CSRF_COOKIE_SECURE') == "True")
+SESSION_EXPIRE_AT_BROWSER_CLOSE=True
+SESSION_COOKIE_HTTPONLY=True
+CSRF_COOKIE_HTTPONLY=True
+SESSION_COOKIE_SAMESITE='Lax'
+
 ALLOWED_HOSTS = [
     environ['DJANGO_ALLOWED_HOSTS']
 ]
 
-# DEV CORS SETUP
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
@@ -39,9 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'service',
     'rest_framework',
     "rest_framework_api_key",
+    'service',
     'corsheaders',
     'core',
     'api'
@@ -49,10 +55,14 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'core.authentication.AzureADAuthentication'
+        'core.auth.authentication.AzureADAuthentication'
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         "rest_framework_api_key.permissions.HasAPIKey",
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 }
 
@@ -72,6 +82,9 @@ ROOT_URLCONF = 'service.urls'
 STATIC_URL = '/static/'
 STATIC_ROOT = path.join(BASE_DIR, 'static')
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = path.join(BASE_DIR, 'media')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -90,8 +103,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'service.wsgi.application'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -102,6 +113,8 @@ DATABASES = {
         'PORT': environ['DATABASE_PORT'],
     }
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -148,5 +161,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     },
 # }
 
-# Email Settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+WSGI_APPLICATION = 'service.wsgi.application'

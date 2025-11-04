@@ -57,7 +57,18 @@ def verify_token(token):
         raise AuthenticationFailed(f"Invalid token: {str(e)}")
 
 class AzureADAuthentication(BaseAuthentication):
+    """
+    Extends the django rest framework authentication class to handle Azure AD authentication.
+    """
+
     def authenticate(self, request):
+        """
+        Authenticates the user against the Azure AD tenant specified by the tenant ID.
+
+        Returns:
+            ExperiorUser and token tuple (will be deprecated in the future)
+        """
+
         auth_header = request.headers.get("Authorization")
 
         if not auth_header or not auth_header.startswith("Bearer "):

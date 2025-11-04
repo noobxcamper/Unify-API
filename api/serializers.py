@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from core.models import PurchaseOrders, ApprovalSettings
+from core.models import PurchaseOrders, ApprovalSettings, Changes
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,4 +17,9 @@ class PurchaseOrdersSerializer(serializers.ModelSerializer):
 class ApprovalSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ApprovalSettings
+        fields = '__all__'
+
+class ChangesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Changes
         fields = '__all__'

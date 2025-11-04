@@ -49,3 +49,16 @@ class PurchaseOrders(models.Model):
     state = models.CharField(max_length=20, null=True, blank=True)
     zip = models.CharField(max_length=10, null=True, blank=True)
     country = models.CharField(max_length=50, null=True, blank=True)
+
+class Changes(models.Model):
+    change_id = models.AutoField(primary_key=True)
+    requester = models.CharField(max_length=50, null=False, blank=False)
+    subject = models.CharField(max_length=50, null=False, blank=False)
+    change_type = models.IntegerField(null=False, blank=False, default=0)   # 0 = minor, 1 = standard, 2 = major, 3 = emergency
+    status = models.IntegerField(null=False, blank=False, default=0)        # 0 = open, 1 = closed, 2 = on hold
+    priority = models.IntegerField(null=False, blank=False, default=0)      # 0 = low, 1 = medium, 2 = high, 3 = urgent
+    impact = models.IntegerField(null=False, blank=False, default=0)        # 0 = low, 1 = medium, 2 = high
+    risk = models.IntegerField(null=False, blank=False, default=0)          # 0 = low, 1 = medium, 2 = high
+    team = models.CharField(max_length=50, null=False, blank=False)
+    agent = models.CharField(max_length=50, null=False, blank=False)
+    description = models.CharField(max_length=1000, null=False, blank=False)

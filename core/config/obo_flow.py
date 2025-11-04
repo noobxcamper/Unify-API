@@ -5,6 +5,10 @@ from service.settings import AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_
 import jwt
 
 def generate_obo_token(user_access_token):
+    """
+    Generates an OBO token using the authenticated user's access token.
+    """
+
     app = ConfidentialClientApplication(
         client_id=AZURE_CLIENT_ID,
         client_credential=AZURE_CLIENT_SECRET,

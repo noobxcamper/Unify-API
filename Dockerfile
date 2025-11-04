@@ -1,43 +1,39 @@
-# Build Stage
-FROM python:3.14-slim AS builder
-LABEL authors="Hazem"
+FROM python:3.14-slim AS build_stage
 
-# Create app directory
-RUN mkdir /app
+WORKDIR /app/
 
-# Set app directory
-WORKDIR /app
-
-# Python optimization
-ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# Install dependencies
 RUN pip install --upgrade pip
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
 
-# Production Stage
+# Stage 2 -- Production Stage
 FROM python:3.14-slim
 
+WORKDIR /app/
+
+ENV PYTHONBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Create non-root user
 RUN useradd -m -r appuser && \
-    mkdir /app && \
     chown -R appuser /app
 
-COPY --from=builder /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
-COPY --from=builder /usr/local/bin/ /usr/local/bin/
+# Copy Python dependencies from build stage
+COPY --from=build_stage /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
+COPY --from=build_stage /usr/local/bin/ /usr/local/bin/
 
-WORKDIR /app
-
+# Copy the app
 COPY --chown=appuser:appuser . .
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONBUFFERED=1
-
+# Switch user
 USER appuser
 
-EXPOSE 8000
+# Documentation
+EXPOSE 8081
 
-RUN chmod +x /app/entrypoint.prod.sh
+RUN chmod +x /app/entrypoint.sh
 
-CMD ["/app/entrypoint.prod.sh"]
+CMD [ "/app/entrypoint.sh" ]
