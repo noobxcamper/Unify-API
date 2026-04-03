@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
 from api.serializers import ChangesSerializer
-from core.auth.permissions import AdminPermission
-from core.models import Changes
+from core.auth.permissions import AdminRole
+from api.models import Changes
 
 class ChangesView(APIView):
-    permission_classes = [ HasAPIKey | AdminPermission ]
+    permission_classes = [ HasAPIKey | AdminRole ]
 
     def get(self, request, change_id=None):
         if change_id is None:
@@ -24,7 +24,7 @@ class ChangesView(APIView):
                 return Response(serializer.data)
             else:
                 return Response(serializer.errors, status=400)
-        except:
+        finally:
             error_response = {
                 "error": [{
                     "error_code": "InvalidQuery",

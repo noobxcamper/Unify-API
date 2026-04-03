@@ -1,51 +1,84 @@
 from rest_framework.permissions import BasePermission
+from core.models import User
 
-class IsSuperuserStrict(BasePermission):
+def get_roles(user_id):
+    roles_data = User.objects.filter(oid=user_id).values("roles").first()
+
+    # Get the inner list from the data
+    roles = roles_data["roles"] if roles_data else []
+
+    return roles
+
+def get_permissions(user_id):
+    permissions_data = User.objects.filter(oid=user_id).values("permissions").first()
+
+    # Get the inner list from the data
+    permissions = permissions_data["permissions"] if permissions_data else []
+
+    return permissions
+
+class IsAuthenticated(BasePermission):
     """
-    Check if the user is a superuser in the django admin panel. User must be a superuser and member of staff.
-
-    Anonymous users are not allowed.
+    Check if a user has been authenticated. Anonymous users are not allowed.
     """
     def has_permission(self, request, view):
-        if not request.user or request.user.is_anonymous:
+        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
             return False
 
-        if request.user.is_superuser and request.user.is_staff:
-            return True
+        return True
 
-        return False
-
-class AdminPermission(BasePermission):
-    """
-    Extends the django rest framework permission class to control endpoint access
-    based on the roles provided in the access token.
-    """
+class AdminRole(BasePermission):
     required_roles = ["Admin"]
 
     def has_permission(self, request, view):
-        if not request.user or request.user.is_anonymous:
+        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
             return False
-        
-        # Check for roles in the decoded token dictionary
-        user_roles = request.user.get("roles", [])
-        if any(role in self.required_roles for role in user_roles):
-            return True
-        return False
-    
-class UserPermission(BasePermission):
-    """
-    Extends the django rest framework permission class to control endpoint access
-    based on the roles provided in the access token.
-    """
 
+        roles = get_roles(request.user.oid)
+
+        if any(role in self.required_roles for role in roles):
+            return True
+
+        return False
+
+class UserRole(BasePermission):
     required_roles = ["User"]
 
     def has_permission(self, request, view):
-        if not request.user or request.user.is_anonymous:
+        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
             return False
-        
-        # Check for roles in the decoded token dictionary
-        user_roles = request.user.get("roles", [])
-        if any(role in self.required_roles for role in user_roles):
+
+        roles = get_roles(request.user.oid)
+
+        if any(role in self.required_roles for role in roles):
             return True
+
+        return False
+
+class ITRole(BasePermission):
+    required_roles = ["IT"]
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
+            return False
+
+        roles = get_roles(request.user.oid)
+
+        if any(role in self.required_roles for role in roles):
+            return True
+
+        return False
+
+class HrRole(BasePermission):
+    required_roles = ["HR"]
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
+            return False
+
+        roles = get_roles(request.user.oid)
+
+        if any(role in self.required_roles for role in roles):
+            return True
+
         return False

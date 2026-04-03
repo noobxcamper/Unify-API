@@ -1,20 +1,29 @@
-import secrets
-import string
-
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.auth.permissions import AdminPermission, UserPermission
+from rest_framework_api_key.permissions import HasAPIKey
+
+from core.auth.permissions import AdminRole, IsAuthenticated, get_roles, get_permissions
+from core.utils import generate_password
+
 
 class GeneratePasswordView(APIView):
-    permission_classes = [ AdminPermission ]
+    permission_classes = [ AdminRole | HasAPIKey ]
 
     def get(self, request):
-        password_requirement = string.ascii_letters + string.digits + string.punctuation
-        password_length = 16
-        password = "".join(secrets.choice(password_requirement) for _ in range(password_length))
-
         password_data = {
-            "password": password
+            "password": generate_password()
         }
 
         return Response(password_data)
+
+class CurrentUserRolesView(APIView):
+    permission_classes = [ IsAuthenticated ]
+
+    def get(self, request):
+        roles = get_roles(request.user.oid)
+        permissions = get_permissions(request.user.oid)
+
+        return Response({
+            "roles": roles,
+            "permissions": permissions
+        })

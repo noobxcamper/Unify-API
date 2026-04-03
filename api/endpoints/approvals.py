@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
 from api.serializers import ApprovalSettingsSerializer
-from core.models import ApprovalSettings
-from core.auth.permissions import AdminPermission
+from api.models import ApprovalSettings
+from core.auth.permissions import AdminRole
 
 class ApprovalSettingsView(APIView):
-    permission_classes = [HasAPIKey | AdminPermission ]
+    permission_classes = [HasAPIKey | AdminRole ]
 
     def get(self, request):
         approval_settings = ApprovalSettings.objects.first()

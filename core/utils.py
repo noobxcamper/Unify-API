@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-import json
+import json, string, secrets, random
 
 def json_validator(data, required_fields=None):
     """
@@ -37,3 +37,29 @@ def json_validator(data, required_fields=None):
             }]
         }
         return True, Response(error_response, status=400)
+
+def generate_password(pass_length=12):
+    if pass_length < 4:
+        raise ValueError("Password length must be at least 4")
+
+    # Required character sets
+    lowercase = string.ascii_lowercase
+    uppercase = string.ascii_uppercase
+    digits = string.digits
+    symbols = string.punctuation
+
+    password = [
+        secrets.choice(lowercase),
+        secrets.choice(uppercase),
+        secrets.choice(digits),
+        secrets.choice(symbols)
+    ]
+
+    # Fill the rest
+    all_chars = lowercase + uppercase + digits + symbols
+    password += [secrets.choice(all_chars) for _ in range(pass_length - 4)]
+
+    # Shuffle to avoid predictable pattern
+    random.SystemRandom().shuffle(password)
+
+    return "".join(password)

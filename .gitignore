@@ -3,3 +3,4 @@
 .venv
 .idea
 run_server.ps1
+logs

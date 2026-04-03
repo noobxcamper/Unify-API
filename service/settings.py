@@ -1,13 +1,22 @@
 from os import path, environ
 from pathlib import Path
-from dotenv import load_dotenv
 
-# Load env file
-load_dotenv('.env.local')
+import pytz
+from dotenv import load_dotenv
+import logging.config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load env file
+load_dotenv(BASE_DIR / '.env.local')
+
+# Django Settings
+DEBUG = (environ.get('DJANGO_DEBUG') == "True")
+DEBUG_LEVEL = environ.get('DJANGO_DEBUG_LEVEL')
+ALLOWED_HOSTS = environ['DJANGO_ALLOWED_HOSTS'].split(',')
+
+# Azure Settings
 SECRET_KEY = environ['DJANGO_SECRET_KEY']
 AZURE_TENANT_ID = environ['AZURE_TENANT_ID']
 AZURE_CLIENT_ID = environ['AZURE_CLIENT_ID']
@@ -15,9 +24,7 @@ AZURE_CLIENT_SECRET = environ['AZURE_CLIENT_SECRET']
 ZOHO_SECRET_KEY = environ['ZOHO_SECRET_KEY']
 ZOHO_CLIENT_ID = environ['ZOHO_CLIENT_ID']
 
-DEBUG = (environ.get('DJANGO_DEBUG') == "True")
-
-### Security Settings ###
+# Security Settings
 SESSION_COOKIE_SECURE = (environ.get('DJANGO_SESSION_COOKIE_SECURE') == "True")
 CSRF_COOKIE_SECURE = (environ.get('DJANGO_CSRF_COOKIE_SECURE') == "True")
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
@@ -25,15 +32,16 @@ SESSION_COOKIE_HTTPONLY=True
 CSRF_COOKIE_HTTPONLY=True
 SESSION_COOKIE_SAMESITE='Lax'
 
-ALLOWED_HOSTS = [
-    environ['DJANGO_ALLOWED_HOSTS']
-]
+# Celery Settings
+CELERY_BROKER_URL = f'redis://{environ["REDIS_HOST"]}:{environ["REDIS_PORT"]}/0'
+CELERY_RESULT_BACKEND = f'redis://{environ["REDIS_HOST"]}:{environ["REDIS_PORT"]}/1'
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
 else:
     CORS_ALLOWED_ORIGINS = [
+        'http://localhost:3000',
         'http://99.244.215.155:3000',
         'https://unify.experiorheadoffice.ca'
     ]
@@ -47,10 +55,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'rest_framework',
     "rest_framework_api_key",
-    'service',
     'corsheaders',
+    'celery',
+    'service',
     'core',
-    'api'
+    'api',
 ]
 
 REST_FRAMEWORK = {
@@ -66,6 +75,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': f'redis://{environ["REDIS_HOST"]}:{environ["REDIS_PORT"]}',
+    }
+}
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -74,8 +90,59 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.APIKeyDetectionMiddleware'
 ]
+
+LOGGING_CONFIG = None
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '%(asctime)s [%(levelname)s] [%(name)s]: %(message)s',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'default',
+            'filename': path.join(BASE_DIR, 'logs', 'django-service.log'),
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': DEBUG_LEVEL,
+            'propagate': True,
+        },
+        "gunicorn.error": {
+            "handlers": ["file", "console"],
+            "level": DEBUG_LEVEL,
+            "propagate": False,
+        },
+        "gunicorn.access": {
+            "handlers": ["file", "console"],
+            "level": DEBUG_LEVEL,
+            "propagate": False,
+        },
+        'core': {
+            'handlers': ['file', 'console'],
+            'level': DEBUG_LEVEL,
+            'propagate': False,
+        },
+        'api': {
+            'handlers': ['file', 'console'],
+            'level': DEBUG_LEVEL,
+            'propagate': False,
+        },
+    },
+})
 
 ROOT_URLCONF = 'service.urls'
 
@@ -105,7 +172,7 @@ TEMPLATES = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': environ['DATABASE_NAME'],
         'USER': environ['DATABASE_USERNAME'],
         'PASSWORD': environ['DATABASE_PASSWORD'],
@@ -140,25 +207,5 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Logging
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': 'c:\\users\\hazem\\Desktop\\django-service.log',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
 
 WSGI_APPLICATION = 'service.wsgi.application'

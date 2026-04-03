@@ -4,12 +4,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
-from core.models import EmailSettings
-from core.auth.permissions import AdminPermission, UserPermission
+from api.models import EmailSettings
+from core.auth.permissions import AdminRole, ITRole
+from core.models import AuditLog
 from core.utils import json_validator
 
+# Logging and auditing
+audit_category = "ITService"
+
 class ITServiceMail(APIView):
-    permission_classes = [HasAPIKey | AdminPermission ]
+    permission_classes = [ AdminRole | ITRole ]
 
     def post(self, request):
         is_error, data_or_error_response = json_validator(request.body,
@@ -49,5 +53,14 @@ class ITServiceMail(APIView):
 
         message.content_subtype = "html"
         message.send()
+
+        AuditLog.objects.create(
+            oid = request.user.oid,
+            name = request.user.name,
+            email = request.user.email,
+            category = audit_category,
+            action = "Mail send to recipient",
+            additional_details = f"Recipient: {json_data.get('to')}"
+        )
 
         return Response({"message": "email sent successfully"})

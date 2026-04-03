@@ -1,0 +1,1 @@
+GRANT ALL PRIVILEGES ON unify_prod.* TO 'db_admin'@'%';

@@ -19,7 +19,7 @@ class ZohoConfig:
         }
 
         return post(api_endpoint, params=params)
-    
+
     def get_valid_token(self):
         token = ZohoToken.objects.first()
 
