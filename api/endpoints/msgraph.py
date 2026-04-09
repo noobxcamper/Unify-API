@@ -7,7 +7,7 @@ from rest_framework_api_key.models import APIKey
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework.permissions import AllowAny
 
-from core.auth.permissions import AdminRole, HrRole
+from core.auth.permissions import AdminRole, HrRole, ITRole
 from core.config.obo_flow import get_obo_token, get_app_token
 from core.models import AuditLog
 from core.utils import generate_password
@@ -37,7 +37,7 @@ class OwnedDevices(APIView):
         return Response(response.json())
 
 class GroupMembers(APIView):
-    permission_classes = [HasAPIKey | AdminRole | AllowAny]
+    permission_classes = [ AdminRole | ITRole | AllowAny ]
 
     def get(self, request, group_id):
         start = time.perf_counter()
@@ -51,6 +51,11 @@ class GroupMembers(APIView):
         if not request.query_params.get('cache_bust') == '1':
             cached_data = cache.get(cache_key)
             if cached_data:
+                end = time.perf_counter()
+                total_time = end - start
+
+                print(f"Execution time: {total_time:.2f} seconds")
+
                 return Response(cached_data)
 
         print('bypassed cache')

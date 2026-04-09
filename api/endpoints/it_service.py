@@ -1,37 +1,29 @@
+from datetime import datetime
+
 from django.core.mail import get_connection, EmailMessage
 from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_api_key.permissions import HasAPIKey
 
 from api.models import EmailSettings
 from core.auth.permissions import AdminRole, ITRole
-from core.models import AuditLog
-from core.utils import json_validator
+from core.utils import create_audit_log, TimeConverter
 
 # Logging and auditing
-audit_category = "ITService"
+audit_category = "IT Service"
 
 class ITServiceMail(APIView):
     permission_classes = [ AdminRole | ITRole ]
 
     def post(self, request):
-        is_error, data_or_error_response = json_validator(request.body,
-                                                          required_fields=["to", "firstName", "loginEmail", "password",
-                                                                           "startDate"])
-
-        if is_error:
-            return data_or_error_response
-
-        json_data = data_or_error_response
+        html_content = render_to_string("mail/new_employee.html", {
+            "first_name": request.data.get("firstName"),
+            "email": request.data.get("loginEmail"),
+            "password": request.data.get("password"),
+            "start_date": datetime.strptime(request.data.get('startDate'), '%Y-%m-%d').strftime('%d/%m/%Y')
+        })
 
         mail_config = EmailSettings.objects.first()
-        html_content = render_to_string("mail/new_employee.html", {
-            "first_name": json_data.get("firstName"),
-            "email": json_data.get("loginEmail"),
-            "password": json_data.get("password"),
-            "start_date": json_data.get("startDate")
-        })
 
         # create smtp connection
         connection = get_connection(
@@ -47,20 +39,20 @@ class ITServiceMail(APIView):
             subject="Welcome to Experior - Your Temporary Login Credentials",
             body=html_content,
             from_email=mail_config.email_username,
-            to=[json_data.get("to")],
+            to=[request.data.get("to")],
             connection=connection
         )
 
         message.content_subtype = "html"
         message.send()
 
-        AuditLog.objects.create(
-            oid = request.user.oid,
-            name = request.user.name,
-            email = request.user.email,
+        create_audit_log(
+            request,
             category = audit_category,
-            action = "Mail send to recipient",
-            additional_details = f"Recipient: {json_data.get('to')}"
+            action = "Mail Send",
+            meta={
+                'recipient': request.data.get('to'),
+            }
         )
 
         return Response({"message": "email sent successfully"})

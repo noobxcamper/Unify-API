@@ -1,5 +1,18 @@
 from rest_framework.response import Response
 import json, string, secrets, random
+from datetime import datetime, timezone
+
+from core.models import AuditLog
+
+class TimeConverter:
+    def to_utc(self, time):
+        return datetime.fromisoformat(time)
+
+    def from_utc(self, time):
+        return datetime.fromisoformat(time).astimezone().strftime('%d/%m/%Y')
+
+    def from_utc_with_tz(self, time):
+        return datetime.fromisoformat(time).astimezone().strftime('%d/%m/%Y %H:%M:%S')
 
 def json_validator(data, required_fields=None):
     """
@@ -63,3 +76,33 @@ def generate_password(pass_length=12):
     random.SystemRandom().shuffle(password)
 
     return "".join(password)
+
+def create_audit_log(request, category, action, meta):
+    if request.is_api_key:
+        AuditLog.objects.create(
+            request_id=request.request_id,
+            remote_ip=request.remote_ip,
+            user_agent=request.user_agent,
+            category=category,
+            action=action,
+            api_key_used=request.is_api_key,
+            user_details={
+                'key_name': request.api_key.name,
+                'key_prefix': request.api_key.prefix,
+            },
+            meta=meta
+        )
+    else:
+        AuditLog.objects.create(
+            request_id=request.request_id,
+            remote_ip=request.remote_ip,
+            user_agent=request.user_agent,
+            category=category,
+            action=action,
+            user_details={
+                'oid': request.user.oid,
+                'name': request.user.name,
+                'email': request.user.email,
+            },
+            meta=meta
+        )

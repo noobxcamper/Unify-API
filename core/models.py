@@ -14,10 +14,13 @@ class User(models.Model):
     permissions = models.JSONField(default=default_permissions)
 
 class AuditLog(models.Model):
+    id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    oid = models.CharField(max_length=128)
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
+    request_id = models.CharField(max_length=40)
+    remote_ip = models.GenericIPAddressField()
+    user_agent = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
     action = models.CharField(max_length=100)
-    additional_details = models.CharField(max_length=2000, null=True, blank=True)
+    api_key_used = models.BooleanField(default=False)
+    user_details = models.JSONField(default=dict, blank=False)
+    meta = models.JSONField(default=dict, blank=True)

@@ -17,10 +17,6 @@ class ChangesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AuditLogSerializer(serializers.ModelSerializer):
-    timestamp = serializers.DateTimeField(
-        format="%d/%m/%Y, %I:%M:%S %p",
-    )
-
     class Meta:
         model = AuditLog
         fields = '__all__'

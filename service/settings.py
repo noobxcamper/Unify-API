@@ -91,7 +91,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.APIKeyDetectionMiddleware'
+    'core.middleware.APIKeyDetectionMiddleware',
+    'core.middleware.AuditMiddleware',
 ]
 
 LOGGING_CONFIG = None

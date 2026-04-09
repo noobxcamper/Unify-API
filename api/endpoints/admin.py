@@ -6,10 +6,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework_api_key.models import APIKey
+from rest_framework_api_key.permissions import HasAPIKey
 
 from api.serializers import AuditLogSerializer, ApiKeySerializer
 from core.auth.permissions import AdminRole
 from core.models import AuditLog
+from core.utils import create_audit_log
 
 # Logging and auditing
 audit_category = "Administration"
@@ -69,7 +71,7 @@ class AdminUsers(APIView):
         }, status=200)
 
 class AdminAPIKeys(APIView):
-    permission_classes = [ AdminRole ]
+    permission_classes = [ AdminRole | HasAPIKey ]
 
     def get(self, request):
         keys = APIKey.objects.all()
@@ -78,12 +80,23 @@ class AdminAPIKeys(APIView):
         return Response(serializer.data, status=200)
 
     def post(self, request):
-        APIKey.objects.create_key(
+        key, generated_key = APIKey.objects.create_key(
             name = request.data.get('name'),
             expiry_date = request.data.get('expiry_date'),
         )
 
-        return Response(status=204)
+        create_audit_log(
+            request,
+            category = audit_category,
+            action = "Created API Key",
+            meta={
+                'key_name': key.name,
+                'key_prefix': key.prefix,
+                'expiry_date': key.expiry_date,
+            }
+        )
+
+        return Response({ 'name': key.name, 'key': generated_key }, status=200)
 
     def patch(self, request):
         key_id = request.query_params.get('id')
@@ -93,28 +106,35 @@ class AdminAPIKeys(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        AuditLog.objects.create(
-            oid = request.user.oid,
-            name = request.user.name,
-            email = request.user.email,
+        print(serializer.data)
+
+        create_audit_log(
+            request,
             category = audit_category,
-            action = "Revoked API key",
-            additional_details = f"Target key: {key_id}"
+            action = "Updated API Key",
+            meta={
+                'key_name': key.name,
+                'key_prefix': key.prefix,
+                'expiry_date': key.expiry_date.isoformat(),
+                'revoked': key.revoked,
+            }
         )
 
         return Response(status=204)
 
     def delete(self, request):
         key_id = request.query_params.get('id')
-        APIKey.objects.get(id=key_id).delete()
+        key = APIKey.objects.get(id=key_id)
+        key.delete()
 
-        AuditLog.objects.create(
-            oid = request.user.oid,
-            name = request.user.name,
-            email = request.user.email,
+        create_audit_log(
+            request,
             category = audit_category,
-            action = "Deleted API key",
-            additional_details = f"Target key: {key_id}"
+            action = "Deleted API Key",
+            meta={
+                'key_name': key.name,
+                'key_prefix': key.prefix,
+            }
         )
 
         return Response(status=204)
