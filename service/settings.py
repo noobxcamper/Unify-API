@@ -1,4 +1,4 @@
-from os import path, environ
+from os import path, environ, makedirs
 from pathlib import Path
 
 import pytz
@@ -7,6 +7,10 @@ import logging.config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+LOGS_DIR = BASE_DIR / 'logs'
+
+# Create logs directory
+makedirs(LOGS_DIR, exist_ok=True)
 
 # Load env file
 load_dotenv(BASE_DIR / '.env.local')
@@ -109,7 +113,7 @@ logging.config.dictConfig({
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'formatter': 'default',
-            'filename': path.join(BASE_DIR, 'logs', 'django-service.log'),
+            'filename': path.join(LOGS_DIR, 'django-service.log'),
         },
         'console': {
             'class': 'logging.StreamHandler',
