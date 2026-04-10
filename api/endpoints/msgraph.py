@@ -11,6 +11,8 @@ from core.config.obo_flow import get_obo_token, get_app_token
 from core.models import AuditLog
 from core.utils import generate_password
 
+# Logging and auditing
+audit_category = "Graph"
 logger = logging.getLogger(__name__)
 
 class User(APIView):

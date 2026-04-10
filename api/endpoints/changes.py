@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
 from api.serializers import ChangesSerializer
-from core.auth.permissions import AdminRole
+from core.auth.permissions import AdminRole, ITRole
 from api.models import Changes
 
 class ChangesView(APIView):
-    permission_classes = [ HasAPIKey | AdminRole ]
+    permission_classes = [ AdminRole | ITRole ]
 
     def get(self, request, change_id=None):
         if change_id is None:

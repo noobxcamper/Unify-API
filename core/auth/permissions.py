@@ -64,6 +64,8 @@ class ITRole(BasePermission):
 
         roles = get_roles(request.user.oid)
 
+        print (roles)
+
         if any(role in self.required_roles for role in roles):
             return True
 
