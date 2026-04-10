@@ -22,5 +22,5 @@ class AuditLog(models.Model):
     category = models.CharField(max_length=100)
     action = models.CharField(max_length=100)
     api_key_used = models.BooleanField(default=False)
-    user_details = models.JSONField(default=dict, blank=False)
-    meta = models.JSONField(default=dict, blank=True)
+    user_details = models.JSONField(default=dict)
+    meta = models.JSONField(default=dict)

@@ -1,16 +1,16 @@
 from django.db import models
 
 class EmailSettings(models.Model):
-    email_host = models.CharField(max_length=50,default="smtp.office365.com")
-    email_port = models.IntegerField(default=587)
+    email_host = models.CharField(max_length=255, default="smtp.office365.com")
+    email_port = models.PositiveSmallIntegerField(default=587)
     email_use_tls = models.BooleanField(default=True)
-    email_username = models.CharField(max_length=50, null=False, blank=False)
-    email_password = models.CharField(max_length=50, null=False, blank=False)
+    email_username = models.CharField(max_length=255)
+    email_password = models.CharField(max_length=255)
 
 class ZohoToken(models.Model):
     access_token = models.TextField(default="")
-    refresh_token = models.TextField(default="1000.3fdf4848d0a324a00ca98e7759583f0c.bc5484982c4b2a1b568b1b98543679cf") # this refresh token does not expire
-    expires_at = models.IntegerField(default=0)
+    refresh_token = models.TextField(default="1000.3fdf4848d0a324a00ca98e7759583f0c.bc5484982c4b2a1b568b1b98543679cf")
+    expires_at = models.PositiveIntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
 
 class Changes(models.Model):
@@ -30,13 +30,13 @@ class Changes(models.Model):
 
     change_id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    requester = models.EmailField(max_length=50, null=True, blank=True)
-    approver = models.EmailField(max_length=50, null=True, blank=True)
+    requester = models.EmailField(max_length=255, null=True, blank=True)
+    approver = models.EmailField(max_length=255, null=True, blank=True)
     title = models.CharField(max_length=150, null=True, blank=True)
-    description = models.CharField(max_length=1000, null=True, blank=True)
-    status = models.IntegerField(choices=ChangeStatus.choices, default=ChangeStatus.OPEN)
-    priority = models.IntegerField(choices=ChangeLevel.choices, default=ChangeLevel.LOW)
-    impact = models.IntegerField(choices=ChangeLevel.choices, default=ChangeLevel.LOW)
-    risk = models.IntegerField(choices=ChangeLevel.choices, default=ChangeLevel.LOW)
-    implementation_date = models.DateTimeField()
+    description = models.TextField(null=True, blank=True)
+    status = models.PositiveSmallIntegerField(choices=ChangeStatus.choices, default=ChangeStatus.OPEN)
+    priority = models.PositiveSmallIntegerField(choices=ChangeLevel.choices, default=ChangeLevel.LOW)
+    impact = models.PositiveSmallIntegerField(choices=ChangeLevel.choices, default=ChangeLevel.LOW)
+    risk = models.PositiveSmallIntegerField(choices=ChangeLevel.choices, default=ChangeLevel.LOW)
+    implementation_date = models.DateTimeField(null=True, blank=True)
     requires_downtime = models.BooleanField(default=False)
