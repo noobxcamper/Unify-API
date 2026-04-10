@@ -13,7 +13,8 @@ LOGS_DIR = BASE_DIR / 'logs'
 makedirs(LOGS_DIR, exist_ok=True)
 
 # Load env file
-load_dotenv(BASE_DIR / '.env.local')
+env_file = environ.get('DJANGO_ENV_FILE', '.env.local')
+load_dotenv(BASE_DIR / env_file)
 
 # Django Settings
 DEBUG = (environ.get('DJANGO_DEBUG') == "True")
