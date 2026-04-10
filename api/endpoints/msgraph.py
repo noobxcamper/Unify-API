@@ -1,11 +1,10 @@
-import requests, time, logging
-
+import logging
+import requests
+import time
 from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_api_key.models import APIKey
 from rest_framework_api_key.permissions import HasAPIKey
-from rest_framework.permissions import AllowAny
 
 from core.auth.permissions import AdminRole, HrRole, ITRole
 from core.config.obo_flow import get_obo_token, get_app_token
@@ -15,7 +14,7 @@ from core.utils import generate_password
 logger = logging.getLogger(__name__)
 
 class User(APIView):
-    permission_classes = [ AdminRole | HrRole ]
+    permission_classes = [ AdminRole | HrRole | ITRole ]
 
     def get(self, request, user_id):
         app_token = get_app_token()
@@ -26,7 +25,7 @@ class User(APIView):
         return Response(response.json())
 
 class OwnedDevices(APIView):
-    permission_classes = [ AdminRole | HrRole ]
+    permission_classes = [ AdminRole | HrRole | ITRole ]
 
     def get(self, request, user_id):
         obo_token = get_obo_token(request.user.oid, request.auth)
@@ -37,7 +36,7 @@ class OwnedDevices(APIView):
         return Response(response.json())
 
 class GroupMembers(APIView):
-    permission_classes = [ AdminRole | ITRole | AllowAny ]
+    permission_classes = [ AdminRole | HrRole | ITRole ]
 
     def get(self, request, group_id):
         start = time.perf_counter()
@@ -85,7 +84,7 @@ class GroupMembers(APIView):
         return Response(raw_data)
 
 class OffboardUser(APIView):
-    permission_classes = [ HrRole | AdminRole | HasAPIKey ]
+    permission_classes = [ AdminRole | HrRole | ITRole | HasAPIKey ]
 
     def __delete_auth_methods(self, obo_token, user_id):
         """
@@ -215,7 +214,7 @@ class OffboardUser(APIView):
         return Response(response.json(), status=response.status_code)
 
 class RemoveUserLicenses(APIView):
-    permission_classes = [ AdminRole | HrRole ]
+    permission_classes = [ AdminRole | HrRole | ITRole ]
 
     def post(self, request):
         pass
