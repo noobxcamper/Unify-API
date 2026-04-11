@@ -9,6 +9,24 @@ class AppUserSerializer(serializers.ModelSerializer):
         model = AppUser
         fields = '__all__'
 
+class AppUserPatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppUser
+        fields = ['roles', 'permissions']
+
+    def validate(self, attrs):
+        if "roles" and "permissions" in attrs:
+            roles = attrs['roles']
+            permissions = attrs['permissions']
+
+            if "User" not in roles:
+                raise serializers.ValidationError("Deleting the default role 'User' is not allowed.")
+
+        else:
+            raise serializers.ValidationError("Missing roles or permissions data.")
+
+        return attrs
+
 class ChangesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Changes

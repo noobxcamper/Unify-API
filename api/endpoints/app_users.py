@@ -6,7 +6,8 @@ from rest_framework_api_key.permissions import HasAPIKey
 from core.models import AppUser
 from core.auth.permissions import AdminRole, IsAuthenticated, get_roles, get_permissions, ITRole
 from core.utils import generate_password
-from serializers import AppUserSerializer
+from serializers import AppUserSerializer, AppUserPatchSerializer
+
 
 class AppUsersView(APIView):
     permission_classes = [ AdminRole ]
@@ -21,12 +22,11 @@ class AppUsersView(APIView):
         user_id = request.query_params.get('id')
 
         user = AppUser.objects.get(oid=user_id)
-        serializer = AppUserSerializer(user, data=request.data, partial=True)
+        serializer = AppUserPatchSerializer(user, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
-
-            return Response(serializer.data)
+            return Response(status=204)
 
         return Response(serializer.errors, status=400)
 
