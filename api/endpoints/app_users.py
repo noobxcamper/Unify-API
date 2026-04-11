@@ -1,10 +1,34 @@
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
+from core.models import AppUser
 from core.auth.permissions import AdminRole, IsAuthenticated, get_roles, get_permissions, ITRole
 from core.utils import generate_password
+from serializers import AppUserSerializer
 
+class AppUsersView(APIView):
+    permission_classes = [ AdminRole ]
+
+    def get(self, request):
+        user = AppUser.objects.all()
+        serializer = AppUserSerializer(user, many=True)
+
+        return Response(serializer.data)
+
+    def patch(self, request):
+        user_id = request.query_params.get('id')
+
+        user = AppUser.objects.get(oid=user_id)
+        serializer = AppUserSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=400)
 
 class GeneratePasswordView(APIView):
     permission_classes = [ AdminRole | ITRole | HasAPIKey ]

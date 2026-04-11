@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
-from api.serializers import ApprovalSettingsSerializer
+from serializers import ApprovalSettingsSerializer
 from api.models import ApprovalSettings
 from core.auth.permissions import AdminRole
 

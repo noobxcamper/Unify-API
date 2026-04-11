@@ -6,7 +6,7 @@ def default_roles():
 def default_permissions():
     return ['User.Read']
 
-class User(models.Model):
+class AppUser(models.Model):
     oid = models.CharField(max_length=128, primary_key=True, unique=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, unique=True)

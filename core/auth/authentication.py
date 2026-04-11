@@ -3,7 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from jwt.algorithms import RSAAlgorithm
 from service.settings import AZURE_TENANT_ID, AZURE_CLIENT_ID
 from django.core.cache import cache
-from core.models import User
+from core.models import AppUser
 import jwt, requests, logging
 
 KEYS_URL = f"https://login.microsoftonline.com/{AZURE_TENANT_ID}/discovery/v2.0/keys"
@@ -139,7 +139,7 @@ class AzureADAuthentication(BaseAuthentication):
 
         # Insert new entry into the DB for roles/permissions if the user does not
         # already exist
-        User.objects.get_or_create(
+        AppUser.objects.get_or_create(
             oid=request.user.oid,
             name=request.user.name,
             email=request.user.email,

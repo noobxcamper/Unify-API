@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from rest_framework_api_key.models import APIKey
 from rest_framework_api_key.permissions import HasAPIKey
 
-from api.serializers import AuditLogSerializer, ApiKeySerializer
+from serializers import AuditLogSerializer, ApiKeySerializer
 from core.auth.permissions import AdminRole
 from core.models import AuditLog
 from core.utils import create_audit_log

@@ -1,5 +1,5 @@
 from django.urls import path
-from api.endpoints import users, zoho, it_service, msgraph, admin, testing
+from api.endpoints import app_users, zoho, it_service, msgraph, admin, testing
 from api.endpoints.changes import ChangesView
 
 urlpatterns = [
@@ -15,8 +15,9 @@ urlpatterns = [
     path('admin/audit-logs', admin.AdminAuditLogs.as_view(), name='get-audit-logs'),
 
     # --- Users --- #
-    path('users/generate-password', users.GeneratePasswordView.as_view(), name='generate-password'),
-    path('users/me/roles', users.CurrentUserRolesView.as_view(), name='get-roles'),
+    path('users', app_users.AppUsersView.as_view(), name='get-users'),
+    path('users/generate-password', app_users.GeneratePasswordView.as_view(), name='generate-password'),
+    path('users/me/roles', app_users.CurrentUserRolesView.as_view(), name='get-roles'),
 
     # --- Zoho --- #
     path('zoho/create-ticket', zoho.ZohoTicketView.as_view(), name='create-ticket'),

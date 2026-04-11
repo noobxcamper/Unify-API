@@ -1,8 +1,8 @@
 from rest_framework.permissions import BasePermission
-from core.models import User
+from core.models import AppUser
 
 def get_roles(user_id):
-    roles_data = User.objects.filter(oid=user_id).values("roles").first()
+    roles_data = AppUser.objects.filter(oid=user_id).values("roles").first()
 
     # Get the inner list from the data
     roles = roles_data["roles"] if roles_data else []
@@ -10,7 +10,7 @@ def get_roles(user_id):
     return roles
 
 def get_permissions(user_id):
-    permissions_data = User.objects.filter(oid=user_id).values("permissions").first()
+    permissions_data = AppUser.objects.filter(oid=user_id).values("permissions").first()
 
     # Get the inner list from the data
     permissions = permissions_data["permissions"] if permissions_data else []

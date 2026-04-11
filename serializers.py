@@ -1,15 +1,13 @@
 import pytz
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from rest_framework_api_key.models import APIKey
 from api.models import Changes
-from core.models import AuditLog
+from core.models import AuditLog, AppUser
 
-class UserSerializer(serializers.ModelSerializer):
+class AppUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = AppUser
         fields = '__all__'
-        extra_kwargs = {"password": {"write_only": True}}
 
 class ChangesSerializer(serializers.ModelSerializer):
     class Meta:
