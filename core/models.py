@@ -6,14 +6,18 @@ def default_roles():
 def default_permissions():
     return ['User.Read']
 
-class AppUser(models.Model):
+class Roles(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+class AppUsers(models.Model):
     oid = models.CharField(max_length=128, primary_key=True, unique=True)
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, unique=True)
     roles = models.JSONField(default=default_roles)
     permissions = models.JSONField(default=default_permissions)
 
-class AuditLog(models.Model):
+class AuditLogs(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     request_id = models.CharField(max_length=40)

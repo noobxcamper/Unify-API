@@ -1,15 +1,17 @@
 import logging
+from datetime import datetime
+
 import requests
 import time
 from django.core.cache import cache
+from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_api_key.permissions import HasAPIKey
 
 from core.auth.permissions import AdminRole, HrRole, ITRole
 from core.config.obo_flow import get_obo_token, get_app_token
-from core.models import AuditLog
-from core.utils import generate_password
+from core.utils import generate_password, create_audit_log
 
 # Logging and auditing
 audit_category = "Graph"
@@ -191,26 +193,14 @@ class OffboardUser(APIView):
         response = requests.patch(f"https://graph.microsoft.com/v1.0/users/{user_id}", json=account_reset_data, headers=headers)
 
         if response.status_code == 204:
-            logger.info(f"Successfully offboarded user {user_id}")
-
-            if request.is_api_key:
-                logger.info(f"API key used '{request.api_key.name}'")
-
-                AuditLog.objects.create(
-                    oid=0,
-                    name=request.api_key.name,
-                    email=request.api_key.prefix,
-                    action="Offboarded user",
-                    additional_details=f"Target user: {user_id}"
-                )
-            else:
-                AuditLog.objects.create(
-                    oid=request.user.oid,
-                    name=request.user.name,
-                    email=request.user.email,
-                    action="Offboarded user",
-                    additional_details=f"Target user: {user_id}"
-                )
+            create_audit_log(
+                request,
+                category=audit_category,
+                action="Offboarded User",
+                meta={
+                    'user': user_id,
+                }
+            )
             return Response({"status": "success"}, status=200)
 
         return Response(response.json(), status=response.status_code)
@@ -220,3 +210,52 @@ class RemoveUserLicenses(APIView):
 
     def post(self, request):
         pass
+
+class SendMail(APIView):
+    permission_classes = [ AdminRole | ITRole ]
+
+    def post(self, request):
+        first_name = request.data.get('first_name')
+        recipient_email = request.data.get('to')
+        login_email = request.data.get('loginEmail')
+        password = request.data.get('password')
+        start_date = datetime.strptime(request.data.get('startDate'), '%Y-%m-%d').strftime('%d/%m/%Y')
+        headers = {"Authorization": f"Bearer {get_app_token()}", "Content-Type": "application/json"}
+
+        html_content = render_to_string("mail/new_employee.html", {
+            "first_name": first_name,
+            "email": login_email,
+            "password": password,
+            "start_date": start_date
+        })
+
+        message = {
+            "message": {
+                "subject": "Welcome to Experior - Your Temporary Login Credentials",
+                "body": {
+                    "contentType": "HTML",
+                    "content": html_content,
+                },
+                "toRecipients": [
+                    { "emailAddress": { "address": recipient_email } },
+                ]
+            }
+        }
+
+        response = requests.post(f"https://graph.microsoft.com/v1.0/users/64dd9266-2157-4e78-97e8-068c691a0777/sendMail",
+                                 headers=headers,
+                                 json=message)
+
+        create_audit_log(
+            request,
+            category = audit_category,
+            action = "Mail Send",
+            meta={
+                'recipient': recipient_email,
+            }
+        )
+
+        if response.status_code == 202:
+            return Response(status=202)
+
+        return Response(response.content, status=response.status_code)

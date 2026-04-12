@@ -1,9 +1,15 @@
+import logging
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from serializers import ChangesSerializer
 from core.auth.permissions import AdminRole, ITRole
 from api.models import Changes
+
+# Logging and auditing
+audit_category = "Change Management"
+logger = logging.getLogger(__name__)
 
 class ChangesView(APIView):
     permission_classes = [ AdminRole | ITRole ]

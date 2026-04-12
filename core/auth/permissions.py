@@ -1,86 +1,53 @@
 from rest_framework.permissions import BasePermission
-from core.models import AppUser
+from core.models import AppUsers
 
-def get_roles(user_id):
-    roles_data = AppUser.objects.filter(oid=user_id).values("roles").first()
+def get_user_access(user_id):
+    data = (AppUsers.objects.filter(oid=user_id).values("roles", "permissions").first()) or {}
 
-    # Get the inner list from the data
-    roles = roles_data["roles"] if roles_data else []
+    return {
+        "roles": data.get("roles", []) or [],
+        "permissions": data.get("permissions", []) or [],
+    }
 
-    return roles
-
-def get_permissions(user_id):
-    permissions_data = AppUser.objects.filter(oid=user_id).values("permissions").first()
-
-    # Get the inner list from the data
-    permissions = permissions_data["permissions"] if permissions_data else []
-
-    return permissions
 
 class IsAuthenticated(BasePermission):
-    """
-    Check if a user has been authenticated. Anonymous users are not allowed.
-    """
     def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
+        user = request.user
+        return bool(user and user.is_authenticated and not user.is_anonymous)
+
+
+class BaseAccessPermission(BasePermission):
+    required_roles = []
+    required_permissions = []
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated or user.is_anonymous:
             return False
 
-        return True
+        access = get_user_access(user.oid)
 
-class AdminRole(BasePermission):
+        return (
+            any(r in self.required_roles for r in access["roles"]) or
+            any(p in self.required_permissions for p in access["permissions"])
+        )
+
+
+class AdminRole(BaseAccessPermission):
     required_roles = ["Admin"]
 
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
-            return False
 
-        roles = get_roles(request.user.oid)
-
-        if any(role in self.required_roles for role in roles):
-            return True
-
-        return False
-
-class UserRole(BasePermission):
+class UserRole(BaseAccessPermission):
     required_roles = ["User"]
 
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
-            return False
 
-        roles = get_roles(request.user.oid)
-
-        if any(role in self.required_roles for role in roles):
-            return True
-
-        return False
-
-class ITRole(BasePermission):
+class ITRole(BaseAccessPermission):
     required_roles = ["IT"]
 
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
-            return False
 
-        roles = get_roles(request.user.oid)
-
-        print (roles)
-
-        if any(role in self.required_roles for role in roles):
-            return True
-
-        return False
-
-class HrRole(BasePermission):
+class HrRole(BaseAccessPermission):
     required_roles = ["HR"]
 
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
-            return False
 
-        roles = get_roles(request.user.oid)
-
-        if any(role in self.required_roles for role in roles):
-            return True
-
-        return False
+class AutomationAdminRole(BaseAccessPermission):
+    required_roles = ["AutomationAdministrator"]

@@ -2,16 +2,21 @@ import pytz
 from rest_framework import serializers
 from rest_framework_api_key.models import APIKey
 from api.models import Changes
-from core.models import AuditLog, AppUser
+from core.models import AuditLogs, AppUsers, Roles
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Roles
+        fields = '__all__'
 
 class AppUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AppUser
+        model = AppUsers
         fields = '__all__'
 
 class AppUserPatchSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AppUser
+        model = AppUsers
         fields = ['roles', 'permissions']
 
     def validate(self, attrs):
@@ -34,7 +39,7 @@ class ChangesSerializer(serializers.ModelSerializer):
 
 class AuditLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AuditLog
+        model = AuditLogs
         fields = '__all__'
 
 class ApiKeySerializer(serializers.ModelSerializer):

@@ -1,6 +1,8 @@
 """
 Expose django admin models as API endpoints for retrieval via a custom frontend.
 """
+import logging
+
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,15 +10,16 @@ from django.contrib.auth.models import User
 from rest_framework_api_key.models import APIKey
 from rest_framework_api_key.permissions import HasAPIKey
 
-from serializers import AuditLogSerializer, ApiKeySerializer
+from serializers import AuditLogSerializer, ApiKeySerializer, RoleSerializer
 from core.auth.permissions import AdminRole
-from core.models import AuditLog
+from core.models import Roles, AuditLogs
 from core.utils import create_audit_log
 
 # Logging and auditing
 audit_category = "Administration"
+logger = logging.getLogger(__name__)
 
-class AdminAuthenticate(APIView):
+class Authenticate(APIView):
     """
     Authenticates the user with the django admin backend.
 
@@ -40,7 +43,7 @@ class AdminAuthenticate(APIView):
                 "detail": "Invalid credentials"
             }, status=401)
 
-class AdminAuthCheck(APIView):
+class AuthCheck(APIView):
     """
     Checks if the user is authenticated.
 
@@ -52,25 +55,22 @@ class AdminAuthCheck(APIView):
     def get(self, request):
         return Response({"is_authenticated": request.user.is_authenticated}, status=200)
 
-class AdminUsers(APIView):
+class DjangoUsers(APIView):
     permission_classes = [ AdminRole ]
 
     def get(self, request):
-        AuditLog.objects.create(
-            oid = request.user.oid,
-            name = request.user.name,
-            email = request.user.email,
-            endpoint = "AdminUsers",
-            action = "Retrieved users"
-        )
-
         users = User.objects.all().values("id", "username", "email", "is_active", "is_staff", "is_superuser")
 
-        return Response({
-            'users': users
-        }, status=200)
+        create_audit_log(
+            request,
+            category=audit_category,
+            action="Retrieved Django Users",
+            meta={}
+        )
 
-class AdminAPIKeys(APIView):
+        return Response({'users': users})
+
+class APIKeys(APIView):
     permission_classes = [ AdminRole | HasAPIKey ]
 
     def get(self, request):
@@ -139,11 +139,20 @@ class AdminAPIKeys(APIView):
 
         return Response(status=204)
 
-class AdminAuditLogs(APIView):
+class Logs(APIView):
     permission_classes = [ AdminRole ]
 
     def get(self, request):
-        audit_logs = AuditLog.objects.all()
+        audit_logs = AuditLogs.objects.all()
         serializer = AuditLogSerializer(audit_logs, many=True)
+
+        return Response(serializer.data)
+
+class AvailableRoles(APIView):
+    permission_classes = [ AdminRole ]
+
+    def get(self, request):
+        roles = Roles.objects.all()
+        serializer = RoleSerializer(roles, many=True)
 
         return Response(serializer.data)

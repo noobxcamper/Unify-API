@@ -2,7 +2,7 @@ from rest_framework.response import Response
 import json, string, secrets, random
 from datetime import datetime, timezone
 
-from core.models import AuditLog
+from core.models import AuditLogs
 
 class TimeConverter:
     def to_utc(self, time):
@@ -79,7 +79,7 @@ def generate_password(pass_length=12):
 
 def create_audit_log(request, category, action, meta):
     if request.is_api_key:
-        AuditLog.objects.create(
+        AuditLogs.objects.create(
             request_id=request.request_id,
             remote_ip=request.remote_ip,
             user_agent=request.user_agent,
@@ -93,7 +93,7 @@ def create_audit_log(request, category, action, meta):
             meta=meta
         )
     else:
-        AuditLog.objects.create(
+        AuditLogs.objects.create(
             request_id=request.request_id,
             remote_ip=request.remote_ip,
             user_agent=request.user_agent,

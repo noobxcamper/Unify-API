@@ -1,18 +1,5 @@
 from django.db import models
 
-class EmailSettings(models.Model):
-    email_host = models.CharField(max_length=255, default="smtp.office365.com")
-    email_port = models.PositiveSmallIntegerField(default=587)
-    email_use_tls = models.BooleanField(default=True)
-    email_username = models.CharField(max_length=255)
-    email_password = models.CharField(max_length=255)
-
-class ZohoToken(models.Model):
-    access_token = models.TextField(default="")
-    refresh_token = models.TextField(default="1000.3fdf4848d0a324a00ca98e7759583f0c.bc5484982c4b2a1b568b1b98543679cf")
-    expires_at = models.PositiveIntegerField(default=0)
-    last_updated = models.DateTimeField(auto_now=True)
-
 class Changes(models.Model):
     class ChangeStatus(models.IntegerChoices):
         CLOSED = 0
