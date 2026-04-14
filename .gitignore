@@ -1,5 +1,4 @@
-.env.local
-.env.prod
+.env
 .venv
 .idea
 run_server.ps1
