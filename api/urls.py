@@ -8,8 +8,6 @@ urlpatterns = [
     # New API route starts here
 
     # --- Django Admin Panel --- #
-    path('admin/authenticate', admin.Authenticate.as_view(), name='authenticate'),
-    path('admin/auth-check', admin.AuthCheck.as_view(), name='auth-check'),
     path('admin/auth/roles', admin.AvailableRoles.as_view(), name='auth-roles'),
     path('admin/users', admin.DjangoUsers.as_view(), name='get-users'),
     path('admin/api-keys', admin.APIKeys.as_view(), name='get-api-keys'),
@@ -31,7 +29,7 @@ urlpatterns = [
     path('graph/users/<str:user_id>', msgraph.User.as_view(), name='msgraph-get-user'),
     path('graph/users/<str:user_id>/owned-devices', msgraph.OwnedDevices.as_view(), name='msgraph-get-owned-devices'),
     path('graph/users/<str:user_id>/offboard', msgraph.OffboardUser.as_view(), name='msgraph-complete-offboarding'),
-    path('graph/users/send-mail', msgraph.SendMail.as_view(), name='msgraph-send-mail'),
+    path('graph/mail/send-mail', msgraph.SendMail.as_view(), name='msgraph-send-mail'),
     path('graph/groups/<str:group_id>/members', msgraph.GroupMembers.as_view(), name='msgraph-get-group-members'),
 
     # --- Automation --- #

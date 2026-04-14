@@ -3,57 +3,20 @@ Expose django admin models as API endpoints for retrieval via a custom frontend.
 """
 import logging
 
-from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
 from rest_framework_api_key.models import APIKey
 from rest_framework_api_key.permissions import HasAPIKey
 
-from serializers import AuditLogSerializer, ApiKeySerializer, RoleSerializer
 from core.auth.permissions import AdminRole
 from core.models import Roles, AuditLogs
 from core.utils import create_audit_log
+from serializers import AuditLogSerializer, ApiKeySerializer, RoleSerializer
 
 # Logging and auditing
 audit_category = "Administration"
 logger = logging.getLogger(__name__)
-
-class Authenticate(APIView):
-    """
-    Authenticates the user with the django admin backend.
-
-    Default django admin portal only.
-    """
-    authentication_classes = []
-    permission_classes = []
-
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-
-        user = authenticate(username=username, password=password)
-
-        if user is not None:
-            return Response({
-                "detail": "Login successful",
-            }, status=200)
-        else:
-            return Response({
-                "detail": "Invalid credentials"
-            }, status=401)
-
-class AuthCheck(APIView):
-    """
-    Checks if the user is authenticated.
-
-    Default django admin portal only.
-    """
-    authentication_classes = []
-    permission_classes = []
-
-    def get(self, request):
-        return Response({"is_authenticated": request.user.is_authenticated}, status=200)
 
 class DjangoUsers(APIView):
     permission_classes = [ AdminRole ]

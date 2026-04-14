@@ -222,6 +222,8 @@ class SendMail(APIView):
         start_date = datetime.strptime(request.data.get('startDate'), '%Y-%m-%d').strftime('%d/%m/%Y')
         headers = {"Authorization": f"Bearer {get_app_token()}", "Content-Type": "application/json"}
 
+        print(request.data.get('first_name'))
+
         html_content = render_to_string("mail/new_employee.html", {
             "first_name": first_name,
             "email": login_email,
