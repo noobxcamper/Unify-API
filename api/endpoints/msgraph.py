@@ -206,7 +206,7 @@ class OffboardUser(APIView):
         return Response(response.json(), status=response.status_code)
 
 class AssignLicense(APIView):
-    permission_classes = [ AdminRole | ITRole | HrRole ]
+    permission_classes = [ AdminRole | ITRole | HrRole | HasAPIKey ]
 
     def post(self, request, user_id):
         url = f"https://graph.microsoft.com/v1.0/users/{user_id}/assignLicense"
@@ -232,7 +232,7 @@ class AssignLicense(APIView):
             return Response(response)
 
 class RemoveUserLicenses(APIView):
-    permission_classes = [ AdminRole | ITRole | HrRole ]
+    permission_classes = [AdminRole | ITRole | HrRole | HasAPIKey]
 
     def post(self, request, user_id):
         url = f"https://graph.microsoft.com/v1.0/users/{user_id}/assignLicense"
