@@ -205,7 +205,7 @@ class OffboardUser(APIView):
 
         return Response(response.json(), status=response.status_code)
 
-class AssignLicense(APIView):
+class AssignLicenses(APIView):
     permission_classes = [ AdminRole | ITRole | HrRole | HasAPIKey ]
 
     def post(self, request, user_id):
@@ -231,7 +231,7 @@ class AssignLicense(APIView):
         except:
             return Response(response)
 
-class RemoveUserLicenses(APIView):
+class RemoveLicenses(APIView):
     permission_classes = [AdminRole | ITRole | HrRole | HasAPIKey]
 
     def post(self, request, user_id):
