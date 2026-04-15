@@ -205,11 +205,57 @@ class OffboardUser(APIView):
 
         return Response(response.json(), status=response.status_code)
 
-class RemoveUserLicenses(APIView):
-    permission_classes = [ AdminRole | HrRole | ITRole ]
+class AssignLicense(APIView):
+    permission_classes = [ AdminRole | ITRole | HrRole ]
 
-    def post(self, request):
-        pass
+    def post(self, request, user_id):
+        url = f"https://graph.microsoft.com/v1.0/users/{user_id}/assignLicense"
+        data = {
+            "addLicenses": request.data.get("licenses"),
+            "removeLicenses": []
+        }
+        headers = {"Authorization": f"Bearer {get_app_token()}"}
+
+        response = requests.post(url, json=data, headers=headers)
+
+        # error handling cus microsoft smfh, why send a 200 response in an error tf?
+        try:
+            err_response = {
+                "error": {
+                    "code": response.json()['error']['code'],
+                    "message": response.json()['error']['message'],
+                }
+            }
+
+            return Response(err_response, status=400)
+        except:
+            return Response(response)
+
+class RemoveUserLicenses(APIView):
+    permission_classes = [ AdminRole | ITRole | HrRole ]
+
+    def post(self, request, user_id):
+        url = f"https://graph.microsoft.com/v1.0/users/{user_id}/assignLicense"
+        data = {
+            "addLicenses": [],
+            "removeLicenses": request.data.get("licenses", [])
+        }
+        headers = {"Authorization": f"Bearer {get_app_token()}"}
+
+        response = requests.post(url, json=data, headers=headers)
+
+        # error handling cus microsoft smfh, why send a 200 response in an error tf?
+        try:
+            err_response = {
+                "error": {
+                    "code": response.json()['error']['code'],
+                    "message": response.json()['error']['message'],
+                }
+            }
+
+            return Response(err_response, status=400)
+        except:
+            return Response(response)
 
 class SendMail(APIView):
     permission_classes = [ AdminRole | ITRole ]

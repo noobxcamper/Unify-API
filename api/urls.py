@@ -29,6 +29,7 @@ urlpatterns = [
     path('graph/users/<str:user_id>', msgraph.User.as_view(), name='msgraph-get-user'),
     path('graph/users/<str:user_id>/owned-devices', msgraph.OwnedDevices.as_view(), name='msgraph-get-owned-devices'),
     path('graph/users/<str:user_id>/offboard', msgraph.OffboardUser.as_view(), name='msgraph-complete-offboarding'),
+    path ('graph/users/<str:user_id>/assign-license', msgraph.AssignLicense.as_view(), name='msgraph-assign-license'),
     path('graph/mail/send-mail', msgraph.SendMail.as_view(), name='msgraph-send-mail'),
     path('graph/groups/<str:group_id>/members', msgraph.GroupMembers.as_view(), name='msgraph-get-group-members'),
 
